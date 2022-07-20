@@ -1,0 +1,70 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>Welcome</h1>
+        <h4>Add a new player</h4>
+        <input class="player-page-input" type="text" placeholder="paste a sportscenter URL" />
+        <button type="submit" onClick="submitNewPlayer()">submit</button>
+        <div class="container"></div>
+        <script>
+
+            function submitNewPlayer() {
+                const playerURL = document.querySelector('.player-page-input').value;
+                //need to send to server next
+                fetch('http://localhost:3000/players', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({playerURL})
+                })
+            }
+
+            // Creates an element that takes a type (like a div, header, etc)
+            // and applies all the attributes to it.
+            function newElement(type, attributes={}) {
+                const el = document.createElement(type);
+                for (let attr in attributes) {
+                    const value = attributes[attr];
+                    if (attr == 'innerText') el.innerText = value; //this is a special case for adding the attribute to the element, because we just simply set it instead of using a function
+                    else el.setAttribute(attr, value);
+                }
+
+                return el;
+            }
+
+            async function loadPlayers() {
+                const res = await fetch('http://localhost:3000/players');
+                const players = await res.json();
+                
+                const ctr = document.querySelector('.container'); //selects the div based on the class name
+                
+                players.forEach(player => { //loops through all the players and adds them to the container as children using the newElement function
+                    const playerCard = newElement('div', {class: 'card'});
+                    const playerTitle = newElement('h4', {innerText: player.name});
+                    const playerImage = newElement('img', {src: player.image});
+                    playerCard.appendChild(playerTitle);
+                    playerCard.appendChild(playerImage);
+                    ctr.appendChild(playerCard);
+                })
+            }
+
+            loadPlayers();
+
+        </script>
+
+        <style>
+            .container {
+                display: flex;
+            }
+
+            .card {
+                margin: 5px;
+                padding: 20px;
+                border: 1px solid black;
+            }
+        </style>     
+    </body>
+</html>
